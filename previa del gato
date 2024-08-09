@@ -1,0 +1,78 @@
+```cpp
+include <ESP32Servo.h>
+include <Ultrasonic.h>
+
+// Pines para los servos
+const int servoPins[12] = { 2, 4, 5, 12, 13, 14, 15, 16, 17, 18, 19, 21 };
+Servo servos[12];
+// Sensores de proximidad
+Ultrasonic frontSensor(32, 33); // Trigger, Echo
+Ultrasonic backSensor(25, 26); // Trigger, Echo
+
+// Comandos
+char command;
+
+// Velocidad de movimiento
+const int motionSpeed = 200;
+
+// Movimientos predefinidos (ejemplos)
+int motionForward[2][12] = { {90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90, 90},
+                             {80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80, 80} };
+// Agrega otros movimientos aquí.
+ // Adjuntar los servos a sus pines
+    for (int i = 0; i < 12; i++) {
+        servos[i].attach(servoPins[i]);
+        servos[i].write(90); // Inicializar en posición neutra
+    }
+
+    // Inicializar los sensores
+    frontSensor.setTimeout(30000); // 30 ms timeout
+    backSensor.setTimeout(30000); // 30 ms timeout
+}
+  // Verificar proximidad
+    checkProximity();
+}
+
+void executeCommand(char cmd) {
+    switch (cmd) {
+        case 'F':
+            moveForward();
+            break;
+        case 'B':
+            moveBackward();
+            break;
+        case 'L':
+            turnLeft();
+            break;
+        case 'R':
+            turnRight();
+            break;
+        case 'D':
+            dance();
+            break;
+        case 'S':
+            stop();
+            break;
+        default:
+            stop();
+            break;
+    }
+}
+
+void moveForward() {
+    for (int j = 0; j < 2; j++) {
+        for (int i = 0; i < 12; i++) {
+            servos[i].write(motionForward[j][i]);
+        }
+        delay(motionSpeed);
+    }
+}
+void stop() {
+    for (int i = 0; i < 12; i++) {
+        servos[i].write(90); // Parar en posición neutra
+    }
+}
+
+void checkProximity() {
+    long distanceFront = frontSensor.Ranging(CM);
+    long distanceBack = backSensor.Ranging(CM);
